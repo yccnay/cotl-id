@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de COTL ID - CORTIS</title>
+    <script src="https://cloudflare.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f3f9f6; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #2e4a3e; }
+        .container { background: white; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(46, 74, 62, 0.05); max-width: 420px; width: 100%; margin-bottom: 25px; box-sizing: border-box; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #4a6b5d; }
+        input, select { padding: 10px; border: 2px solid #d0e1d9; border-radius: 8px; font-size: 14px; outline: none; background: #fafdfb; }
+        
+        .member-selector { display: flex; gap: 5px; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; }
+        .member-btn { flex: 1; min-width: 60px; border: 2px solid #d0e1d9; background: #fafdfb; border-radius: 8px; padding: 6px; cursor: pointer; text-align: center; font-size: 11px; font-weight: bold; color: #555; }
+        .member-btn.active { background: #cce7dc; border-color: #81b29a; color: #1e3529; }
+        
+        button.download-btn { background: #81b29a; border: none; padding: 12px; border-radius: 8px; font-weight: bold; color: white; cursor: pointer; font-size: 16px; margin-top: 10px; width: 100%; }
+        
+        .card { width: 340px; height: 210px; background: linear-gradient(135deg, #e8f3ee 0%, #d8eae1 100%); border: 3px solid #b2d3c2; border-radius: 16px; padding: 16px; box-sizing: border-box; display: flex; gap: 16px; position: relative; overflow: hidden; }
+        .photo-area { width: 95px; height: 125px; border-radius: 10px; background: #f0f7f4; border: 2px solid #b2d3c2; display: flex; align-items: center; justify-content: center; overflow: hidden; font-weight: bold; font-size: 13px; color: #81b29a; }
+        .photo-area img { width: 100%; height: 100%; object-fit: cover; }
+        .info-area { display: flex; flex-direction: column; justify-content: center; gap: 10px; flex: 1; }
+        .info-block { display: flex; flex-direction: column; }
+        .info-title { font-size: 9px; text-transform: uppercase; color: #6c8e7f; margin: 0; font-weight: bold; }
+        .info-value { font-size: 14px; font-weight: 800; color: #1e3529; margin: 2px 0 0 0; }
+        .card-header { position: absolute; top: 12px; right: 16px; font-size: 10px; font-weight: 900; color: #6c8e7f; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h3 style="margin-top:0; text-align:center; color:#2e4a3e;">Gerador COTL ID 💚</h3>
+        
+        <div class="form-group">
+            <label>1. Escolha seu Utt (Era COTL)</label>
+            <div class="member-selector">
+                <div class="member-btn" onclick="selectMember('Martin', 'martin.jpg')" id="btn-Martin">Martin</div>
+                <div class="member-btn" onclick="selectMember('James', 'james.jpg')" id="btn-James">James</div>
+                <div class="member-btn" onclick="selectMember('Juhoon', 'juhoon.jpg')" id="btn-Juhoon">Juhoon</div>
+                <div class="member-btn" onclick="selectMember('Seonghyeon', 'seonghyeon.jpg')" id="btn-Seonghyeon">Seonghyeon</div>
+                <div class="member-btn" onclick="selectMember('Keonho', 'keonho.jpg')" id="btn-Keonho">Keonho</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Nome do COER</label>
+            <input type="text" id="inputName" placeholder="Seu nome ou nick" oninput="updateCard()">
+        </div>
+
+        <div class="form-group">
+            <label>Música Favorita (Álbum COTL)</label>
+            <select id="inputSong" onchange="updateCard()">
+                <option value="GO!">GO!</option>
+                <option value="What You Want">What You Want</option>
+                <option value="FaSHioN">FaSHioN</option>
+                <option value="JoyRide">JoyRide</option>
+                <option value="Lullaby">Lullaby</option>
+            </select>
+        </div>
+
+        <button class="download-btn" onclick="downloadCard()">Salvar como Foto 💾</button>
+
+        <!-- AQUI ESTÁ A NOVA ÁREA PARA SALVAR NO CELULAR -->
+        <div id="resultImageContainer" style="margin-top: 25px; text-align: center; display: none;">
+            <p style="font-size: 13px; color: #4a6b5d; font-weight: bold; background: #e8f3ee; padding: 8px; border-radius: 6px;">👇 Toque e segure na imagem abaixo para salvar na galeria!</p>
+            <img id="resultImage" style="width: 100%; max-width: 340px; border-radius: 16px; box-shadow: 0 6px 12px rgba(0,0,0,0.1); border: 3px solid #b2d3c2;" src="" alt="Sua Carteirinha">
+        </div>
+    </div>
+
+    <div class="card" id="coerCard">
+        <div class="card-header">COLOR OUTSIDE THE LINES</div>
+        <div class="photo-area" id="cardPhotoArea">
+            <span id="cardPhotoLabel">COTL</span>
+        </div>
+        <div class="info-area">
+            <div class="info-block">
+                <p class="info-title">COER</p>
+                <p class="info-value" id="cardName">Seu Nome</p>
+            </div>
+            <div class="info-block">
+                <p class="info-title">Utt no CORTIS</p>
+                <p class="info-value" id="cardUtt">Selecione</p>
+            </div>
+            <div class="info-block">
+                <p class="info-title">Música Favorita</p>
+                <p class="info-value" id="cardSong">GO!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedUtt = "";
+        function selectMember(name, photoUrl) {
+            selectedUtt = name;
+            document.querySelectorAll('.member-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + name).classList.add('active');
+            const photoArea = document.getElementById('cardPhotoArea');
+            photoArea.innerHTML = `<img src="${photoUrl}" alt="${name}">`;
+            updateCard();
+        }
+        function updateCard() {
+            document.getElementById('cardName').innerText = document.getElementById('inputName').value || 'Seu Nome';
+            document.getElementById('cardUtt').innerText = selectedUtt || 'Selecione';
+            document.getElementById('cardSong').innerText = document.getElementById('inputSong').value;
+        }
+        
+        // FUNÇÃO ATUALIZADA COMPATÍVEL COM CELULARES
+        function downloadCard() {
+            const card = document.getElementById('coerCard');
+            html2canvas(card, { scale: 3, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Mostra a imagem na tela para celular
+                const imgElement = document.getElementById('resultImage');
+                const container = document.getElementById('resultImageContainer');
+                imgElement.src = imgData;
+                container.style.display = 'block';
+                
+                // Rola a tela até a imagem gerada automaticamente
+                container.scrollIntoView({ behavior: 'smooth' });
+
+                // Tenta o download automático padrão também
+                const link = document.createElement('a');
+                link.download = 'meu-cotl-id.png';
+                link.href = imgData;
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
